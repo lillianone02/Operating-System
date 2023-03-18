@@ -1,2 +1,3 @@
 # Operating-System
-My OS Project
+OS Homework 1
+Thread Management
