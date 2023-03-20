@@ -1,5 +1,9 @@
 # Operating System System Call : Sleep
 
+## Motivation 
+We want to add a system call ```Sleep```.  
+At the same time, we have to comfigure some techniques to meature when to wake up the sleeping ```Threrad```.  
+
 ## Implementation
 First we define the system call Sleep, and we record its number and behavior in ```uerprog/syscall.h```  
 Then we make the system call ```Sleep``` into kernal.  
@@ -127,5 +131,34 @@ bool sleepList::PutToReady() {
         }
     }
     return woken;
+}
+```
+
+## Test 
+We use the two file ```test1``` and ```teat2```.
+```c++
+// test/test1.c
+
+#include "syscall.h"
+main() {
+    int i;
+    for(i = 0; i < 5; i++) {
+        Sleep(1000000);
+        PrintInt(2222);
+    }
+    return 0;
+}
+```
+```c++
+// test/test2.c
+
+#include "syscall.h"
+main() {
+    int i;
+    for(i = 0; i < 20; i++) {
+        Sleep(100000);
+        PrintInt(10);
+    }
+    return 0;
 }
 ```
