@@ -1,8 +1,9 @@
 # Operating System CPU Scheduling 
+## Motivation
 We implement and compare three CPU Scheduling Algorithms: First-Come-First-Service(FCFS), Shortest-Fob-First(SJF),and Priority.  
 We use teo cases to compare the order and CPU burst time between the three Algorithms.  
 
-# Implementation 
+## Implementation 
 We first creat ```ThreadInfo```to print the running thread and the remaining CPU burst time.  
 ```c++
 // threads/thread.cc
@@ -191,9 +192,9 @@ Scheduler::Scheduler(SchedulerType type)
     toBeDestroyed = NULL;
 }
 ```
-
-## Result 
+## Test 
 ```./nachos FCFS/SJF/PRIORITY```
+## Result 
 ### Test case 1 
 #### FCFS 
 Order:ABCD
