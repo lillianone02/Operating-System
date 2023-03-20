@@ -5,8 +5,8 @@
 * Project 4: Memory management  
 
 # VirtualBox 
-* Oracle VM VirtualBox 
-  <https://www.virtualbox.org/wiki/Downloads>
+* Oracle VM VirtualBox   
+  + <https://www.virtualbox.org/wiki/Downloads>
 * 32-bit Ubuntu 14.
   
   
