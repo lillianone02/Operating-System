@@ -164,3 +164,4 @@ main() {
 ```
 
 # Result 
+![image](https://github.com/lillianone02/Operating-System/blob/b749ec63d80678cd67b53184b0483d09283bdecd/OS%20Project2/OSproject2.png)
