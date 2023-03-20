@@ -143,9 +143,9 @@ We use the two file ```test1``` and ```teat2```.
 #include "syscall.h"
 main() {
     int i;
-    for(i = 0; i < 5; i++) {
-        Sleep(1000000);
-        PrintInt(2222);
+    for(i = 0; i < 4; i++) {
+        Sleep(500000);
+        PrintInt(8888);
     }
     return 0;
 }
