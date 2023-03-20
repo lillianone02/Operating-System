@@ -2,7 +2,7 @@
 
 ## Motivation 
 We want to add a system call ```Sleep```.  
-At the same time, we have to comfigure some techniques to meature when to wake up the sleeping ```Threrad```.  
+At the same time, we have to comfigure some techniques to meature when to wake up the sleeping ```Thread```.  
 
 ## Implementation
 First we define the system call Sleep, and we record its number and behavior in ```uerprog/syscall.h```  
