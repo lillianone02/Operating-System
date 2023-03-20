@@ -165,3 +165,4 @@ main() {
 
 # Result 
 ![image](https://github.com/lillianone02/Operating-System/blob/b749ec63d80678cd67b53184b0483d09283bdecd/OS%20Project2/OSproject2.png)
+![image](https://github.com/lillianone02/Operating-System/blob/dcdb2977b5a25b5c6478400a79c7de3792a3a7b3/OS%20Project2/OSproject2-1.png)
