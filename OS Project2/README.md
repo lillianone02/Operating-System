@@ -4,7 +4,7 @@
 First we define the system call Sleep, and we record its number and behavior in ```uerprog/syscall.h```  
 Then we make the system call ```Sleep``` into kernal.  
 ```
-uerprog/syscall.h
+// uerprog/syscall.h
 
         .globl  Sleep
         .ent    Sleep
@@ -16,7 +16,7 @@ Sleep:
 ```
 We go into file ```exception.cc```, and define the behavior of the system call ```SC_Sleep```which NachOS is responsible for.  
 ```c++
-userprog/exception.cc
+// userprog/exception.cc
 
 case SC_Sleep:
         val=kernel->machine->ReadRegister(4);
@@ -29,7 +29,7 @@ We adjust ```WaitUntil``` in ```Alarm```to practice Sleep.
 We count the number of the interrupt.  
 When the number equal to the sleep time, OS should put the certain Thread back to ```Ready Queue```.  
 ```c++
-threads/alarm.h
+// threads/alarm.h
 
 #ifndef ALARM_H
 #define ALARM_H
@@ -73,4 +73,59 @@ class Alarm : public CallBackObj {
                 // timer generates an interrupt
 };
 #endif // ALARM_H
+```
+OS have to check whether the Thread has to be waken up by ```Alarm```or not.  
+```c++
+// threads/alarm.cc 
+
+void Alarm::CallBack() {
+    Interrupt *interrupt = kernel->interrupt;
+    MachineStatus status = interrupt->getStatus();
+    bool woken = _sleepList.PutToReady();
+    //如果沒有程式需要計數了，就把時脈中斷遮蔽掉
+    if (status == IdleMode && !woken && _sleepList.IsEmpty()) {// is it time to quit?
+        if (!interrupt->AnyFutureInterrupts()) {
+            timer->Disable();   // turn off the timer
+        }
+    } else {                    // there's someone to preempt
+        interrupt->YieldOnReturn();
+    }
+}
+
+void Alarm::WaitUntil(int x) {
+    //關中斷
+    IntStatus oldLevel = kernel->interrupt->SetLevel(IntOff);
+    Thread* t = kernel->currentThread;
+    cout << "Alarm::WaitUntil go sleep" << endl;
+    _sleepList.PutToSleep(t, x);
+    //開中斷
+    kernel->interrupt->SetLevel(oldLevel);
+}
+
+bool sleepList::IsEmpty() {
+    return _threadlist.size() == 0;
+}
+
+void sleepList::PutToSleep(Thread*t, int x) {
+    ASSERT(kernel->interrupt->getLevel() == IntOff);
+    _threadlist.push_back(sleepThread(t, _current_interrupt + x));
+    t->Sleep(false);
+}
+
+bool sleepList::PutToReady() {
+    bool woken = false;
+    _current_interrupt ++;
+    for(std::list<sleepThread>::iterator it = _threadlist.begin();
+        it != _threadlist.end(); ) {
+        if(_current_interrupt >= it->when) {
+            woken = true;
+            cout << "sleepList::PutToReady Thread woken" << endl;
+            kernel->scheduler->ReadyToRun(it->sleeper);
+            it = _threadlist.erase(it);
+        } else {
+            it++;
+        }
+    }
+    return woken;
+}
 ```
