@@ -7,7 +7,14 @@
 # VirtualBox 
 * Oracle VM VirtualBox   
   + <https://www.virtualbox.org/wiki/Downloads>
-* 32-bit Ubuntu 14.
+* 32-bit Ubuntu 22.10 
+  + <https://ubuntu.com/download/desktop> 
+ 
+# Setup 
+install g++ csh 
+```
+jjj
+```
   
   
 
