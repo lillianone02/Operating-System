@@ -47,7 +47,7 @@ Thread::SchedulingTest()
 }
 ```
 We add new function in class Thread.
-```
+```c++
 // threads/thread.h
 
 class Thread {
@@ -91,7 +91,7 @@ class ThreadedKernel {
     void Initialize()
 }
 ```
-We add SchedularType
+We add SchedulerType
 ```c++
 // threads/main.cc
 
@@ -120,4 +120,358 @@ main(int argc, char **argv)
     
     return 0;
 }
+```
+We define SchedulerType.
+```c++
+// threads/scheduler.h
+
+enum SchedulerType {
+        RR,     // Round Robin
+        SJF,
+        Priority,
+        FIFO //add
+};
+
+class Scheduler {
+  public:
+	Scheduler();		// Initialize list of ready threads 
+	Scheduler(SchedulerType type);		//  add Initialize list of ready threads 
+    SchedulerType getSchedulerType() {return schedulerType;}
+    void setSchedulerType(SchedulerType t) {schedulerType = t;}
+};
+```
+We define different scheduler algorithms.
+```c++
+// threads/scheduler.cc
+
+int SJFCompare(Thread *a, Thread *b) {
+    if(a->getCpuBurstTime() == b->getCpuBurstTime())
+        return 0;
+    else if (a->getCpuBurstTime() > b->getCpuBurstTime())
+        return 1;
+    else
+        return -1;
+}
+int PRIORITYCompare(Thread *a, Thread *b) {
+    if(a->getThreadPriority() == b->getThreadPriority())
+        return 0;
+    else if (a->getThreadPriority() > b->getThreadPriority())
+        return 1;
+    else
+        return -1;
+}
+int FIFOCompare(Thread *a, Thread *b) {
+    return 1;
+}
+```
+According to different arguments, OS put threads into SortedList.
+```c++
+// threads/scheduler.cc
+
+Scheduler::Scheduler() {
+    Scheduler(RR);
+}
+Scheduler::Scheduler(SchedulerType type)
+{
+    schedulerType = type;
+    switch(schedulerType) {
+    case RR:
+        readyList = new List<Thread *>;
+        break;
+    case SJF:
+        readyList = new SortedList<Thread *>(SJFCompare);
+        break;
+    case Priority:
+        readyList = new SortedList<Thread *>(PRIORITYCompare);
+        break;
+    case FIFO:
+        readyList = new SortedList<Thread *>(FIFOCompare);
+        break;
+    }
+    toBeDestroyed = NULL;
+}
+```
+
+## Result 
+```./nachos FCFS/SJF/PRIORITY```
+### Test case 1 
+#### FCFS 
+Order:ABCD
+```
+*** thread 0 looped 0 times
+*** thread 1 looped 0 times
+*** thread 0 looped 1 times
+*** thread 1 looped 1 times
+*** thread 0 looped 2 times
+*** thread 1 looped 2 times
+*** thread 0 looped 3 times
+*** thread 1 looped 3 times
+*** thread 0 looped 4 times
+*** thread 1 looped 4 times
+Running thread A: cpu burst time remaining 7
+Running thread A: cpu burst time remaining 6
+Running thread A: cpu burst time remaining 5
+Running thread A: cpu burst time remaining 4
+Running thread A: cpu burst time remaining 3
+Running thread A: cpu burst time remaining 2
+Running thread A: cpu burst time remaining 1
+Running thread A: cpu burst time remaining 0
+Running thread B: cpu burst time remaining 3
+Running thread B: cpu burst time remaining 2
+Running thread B: cpu burst time remaining 1
+Running thread B: cpu burst time remaining 0
+Running thread C: cpu burst time remaining 8
+Running thread C: cpu burst time remaining 7
+Running thread C: cpu burst time remaining 6
+Running thread C: cpu burst time remaining 5
+Running thread C: cpu burst time remaining 4
+Running thread C: cpu burst time remaining 3
+Running thread C: cpu burst time remaining 2
+Running thread C: cpu burst time remaining 1
+Running thread C: cpu burst time remaining 0
+Running thread D: cpu burst time remaining 4
+Running thread D: cpu burst time remaining 3
+Running thread D: cpu burst time remaining 2
+Running thread D: cpu burst time remaining 1
+Running thread D: cpu burst time remaining 0
+No threads ready or runnable, and no pending interrupts.
+Assuming the program completed.
+Machine halting! 
+```
+#### SJF 
+Order:BDAC
+```
+*** thread 0 looped 0 times
+*** thread 1 looped 0 times
+*** thread 0 looped 1 times
+*** thread 1 looped 1 times
+*** thread 0 looped 2 times
+*** thread 1 looped 2 times
+*** thread 0 looped 3 times
+*** thread 1 looped 3 times
+*** thread 0 looped 4 times
+*** thread 1 looped 4 times
+Running thread B: cpu burst time remaining 3
+Running thread B: cpu burst time remaining 2
+Running thread B: cpu burst time remaining 1
+Running thread B: cpu burst time remaining 0
+Running thread D: cpu burst time remaining 4
+Running thread D: cpu burst time remaining 3
+Running thread D: cpu burst time remaining 2
+Running thread D: cpu burst time remaining 1
+Running thread D: cpu burst time remaining 0
+Running thread A: cpu burst time remaining 7
+Running thread A: cpu burst time remaining 6
+Running thread A: cpu burst time remaining 5
+Running thread A: cpu burst time remaining 4
+Running thread A: cpu burst time remaining 3
+Running thread A: cpu burst time remaining 2
+Running thread A: cpu burst time remaining 1
+Running thread A: cpu burst time remaining 0
+Running thread C: cpu burst time remaining 8
+Running thread C: cpu burst time remaining 7
+Running thread C: cpu burst time remaining 6
+Running thread C: cpu burst time remaining 5
+Running thread C: cpu burst time remaining 4
+Running thread C: cpu burst time remaining 3
+Running thread C: cpu burst time remaining 2
+Running thread C: cpu burst time remaining 1
+Running thread C: cpu burst time remaining 0
+No threads ready or runnable, and no pending interrupts.
+Assuming the program completed.
+Machine halting!
+```
+#### PRIORITY 
+Order:BACD
+```
+*** thread 0 looped 0 times
+*** thread 1 looped 0 times
+*** thread 0 looped 1 times
+*** thread 1 looped 1 times
+*** thread 0 looped 2 times
+*** thread 1 looped 2 times
+*** thread 0 looped 3 times
+*** thread 1 looped 3 times
+Preemptive scheduling: interrupt->YieldOnReturn
+*** thread 1 looped 4 times
+*** thread 0 looped 4 times
+Preemptive scheduling: interrupt->YieldOnReturn
+Running thread B: cpu burst time remaining 3
+Running thread B: cpu burst time remaining 2
+Running thread B: cpu burst time remaining 1
+Running thread B: cpu burst time remaining 0
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Running thread A: cpu burst time remaining 7
+Running thread A: cpu burst time remaining 6
+Running thread A: cpu burst time remaining 5
+Running thread A: cpu burst time remaining 4
+Running thread A: cpu burst time remaining 3
+Running thread A: cpu burst time remaining 2
+Running thread A: cpu burst time remaining 1
+Running thread A: cpu burst time remaining 0
+Preemptive scheduling: interrupt->YieldOnReturn
+Running thread C: cpu burst time remaining 8
+Running thread C: cpu burst time remaining 7
+Running thread C: cpu burst time remaining 6
+Running thread C: cpu burst time remaining 5
+Running thread C: cpu burst time remaining 4
+Running thread C: cpu burst time remaining 3
+Running thread C: cpu burst time remaining 2
+Running thread C: cpu burst time remaining 1
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Running thread C: cpu burst time remaining 0
+Preemptive scheduling: interrupt->YieldOnReturn
+Running thread D: cpu burst time remaining 4
+Running thread D: cpu burst time remaining 3
+Running thread D: cpu burst time remaining 2
+Running thread D: cpu burst time remaining 1
+Running thread D: cpu burst time remaining 0
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+No threads ready or runnable, and no pending interrupts.
+Assuming the program completed.
+Machine halting!
+```
+### Test case 2 
+#### FCFS 
+Order:ABCD
+```
+*** thread 0 looped 0 times
+*** thread 1 looped 0 times
+*** thread 0 looped 1 times
+*** thread 1 looped 1 times
+*** thread 0 looped 2 times
+*** thread 1 looped 2 times
+*** thread 0 looped 3 times
+*** thread 1 looped 3 times
+*** thread 0 looped 4 times
+*** thread 1 looped 4 times
+Running thread A: cpu burst time remaining 2
+Running thread A: cpu burst time remaining 1
+Running thread A: cpu burst time remaining 0
+Running thread B: cpu burst time remaining 8
+Running thread B: cpu burst time remaining 7
+Running thread B: cpu burst time remaining 6
+Running thread B: cpu burst time remaining 5
+Running thread B: cpu burst time remaining 4
+Running thread B: cpu burst time remaining 3
+Running thread B: cpu burst time remaining 2
+Running thread B: cpu burst time remaining 1
+Running thread B: cpu burst time remaining 0
+Running thread C: cpu burst time remaining 6
+Running thread C: cpu burst time remaining 5
+Running thread C: cpu burst time remaining 4
+Running thread C: cpu burst time remaining 3
+Running thread C: cpu burst time remaining 2
+Running thread C: cpu burst time remaining 1
+Running thread C: cpu burst time remaining 0
+Running thread D: cpu burst time remaining 2
+Running thread D: cpu burst time remaining 1
+Running thread D: cpu burst time remaining 0
+No threads ready or runnable, and no pending interrupts.
+Assuming the program completed.
+Machine halting! 
+```
+#### SJF 
+Order:ADCB
+```
+*** thread 0 looped 0 times
+*** thread 1 looped 0 times
+*** thread 0 looped 1 times
+*** thread 1 looped 1 times
+*** thread 0 looped 2 times
+*** thread 1 looped 2 times
+*** thread 0 looped 3 times
+*** thread 1 looped 3 times
+*** thread 0 looped 4 times
+*** thread 1 looped 4 times
+Running thread A: cpu burst time remaining 2
+Running thread A: cpu burst time remaining 1
+Running thread A: cpu burst time remaining 0
+Running thread D: cpu burst time remaining 2
+Running thread D: cpu burst time remaining 1
+Running thread D: cpu burst time remaining 0
+Running thread C: cpu burst time remaining 6
+Running thread C: cpu burst time remaining 5
+Running thread C: cpu burst time remaining 4
+Running thread C: cpu burst time remaining 3
+Running thread C: cpu burst time remaining 2
+Running thread C: cpu burst time remaining 1
+Running thread C: cpu burst time remaining 0
+Running thread B: cpu burst time remaining 8
+Running thread B: cpu burst time remaining 7
+Running thread B: cpu burst time remaining 6
+Running thread B: cpu burst time remaining 5
+Running thread B: cpu burst time remaining 4
+Running thread B: cpu burst time remaining 3
+Running thread B: cpu burst time remaining 2
+Running thread B: cpu burst time remaining 1
+Running thread B: cpu burst time remaining 0
+No threads ready or runnable, and no pending interrupts.
+Assuming the program completed.
+Machine halting!
+```
+#### PRIORITY
+Order:BDCA
+```
+*** thread 0 looped 0 times
+*** thread 1 looped 0 times
+*** thread 0 looped 1 times
+*** thread 1 looped 1 times
+*** thread 0 looped 2 times
+*** thread 1 looped 2 times
+*** thread 0 looped 3 times
+*** thread 1 looped 3 times
+Preemptive scheduling: interrupt->YieldOnReturn
+*** thread 1 looped 4 times
+*** thread 0 looped 4 times
+Preemptive scheduling: interrupt->YieldOnReturn
+Running thread B: cpu burst time remaining 8
+Running thread B: cpu burst time remaining 7
+Running thread B: cpu burst time remaining 6
+Running thread B: cpu burst time remaining 5
+Running thread B: cpu burst time remaining 4
+Running thread B: cpu burst time remaining 3
+Preemptive scheduling: interrupt->YieldOnReturn
+Running thread B: cpu burst time remaining 2
+Running thread B: cpu burst time remaining 1
+Running thread B: cpu burst time remaining 0
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Running thread D: cpu burst time remaining 2
+Running thread D: cpu burst time remaining 1
+Running thread D: cpu burst time remaining 0
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Running thread C: cpu burst time remaining 6
+Running thread C: cpu burst time remaining 5
+Running thread C: cpu burst time remaining 4
+Running thread C: cpu burst time remaining 3
+Running thread C: cpu burst time remaining 2
+Running thread C: cpu burst time remaining 1
+Running thread C: cpu burst time remaining 0
+Preemptive scheduling: interrupt->YieldOnReturn
+Preemptive scheduling: interrupt->YieldOnReturn
+Running thread A: cpu burst time remaining 2
+Running thread A: cpu burst time remaining 1
+Running thread A: cpu burst time remaining 0
 ```
