@@ -1,7 +1,7 @@
 # Operating System CPU Scheduling 
 ## Motivation
 We implement and compare three CPU Scheduling Algorithms: First-Come-First-Service(FCFS), Shortest-Fob-First(SJF),and Priority.  
-We use t cases to compare the order and CPU burst time between the three Algorithms.  
+We use two cases to compare the order and CPU burst time between the three Algorithms.  
 
 ## Implementation 
 We first creat ```ThreadInfo```to print the running thread and the remaining CPU burst time.  
