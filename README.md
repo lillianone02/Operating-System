@@ -4,7 +4,7 @@
 * Project 3: CPU Scheduling
 * Project 4: Memory management  
 
-# VirtualBox 
+# VirtualBox & Ubuntu
 * Oracle VM VirtualBox   
   + <https://www.virtualbox.org/wiki/Downloads>
 * 32-bit Ubuntu 22.10 
